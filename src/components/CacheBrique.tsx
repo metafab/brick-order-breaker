@@ -50,8 +50,8 @@ const CacheBrique: React.FC = () => {
         toast.success(`Correct! Find number ${currentNumber + 1} now.`);
       }
     } else {
-      toast.error("Oops! Wrong brick. Starting over...");
-      resetGame();
+      toast.error("Oops! Wrong brick. Try again.");
+      // We're not resetting the game here anymore
     }
 
     setFlippedBricks(prev => {
