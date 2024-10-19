@@ -47,9 +47,8 @@ const CacheBrique: React.FC = () => {
     });
     setTempRevealedBrick(index);
 
-    await new Promise(resolve => setTimeout(resolve, REVEAL_DURATION));
-
     if (bricks[index] === currentNumber) {
+      await new Promise(resolve => setTimeout(resolve, REVEAL_DURATION));
       const newRevealedBricks = [...revealedBricks];
       newRevealedBricks[index] = true;
       setRevealedBricks(newRevealedBricks);
@@ -67,7 +66,8 @@ const CacheBrique: React.FC = () => {
         audioRef.current.play();
       }
       toast.error("Oops! Wrong brick. Try again.");
-      setTimeout(() => setErrorBrick(null), ERROR_DURATION);
+      await new Promise(resolve => setTimeout(resolve, ERROR_DURATION));
+      setErrorBrick(null);
     }
 
     setFlippedBricks(prev => {
@@ -101,7 +101,7 @@ const CacheBrique: React.FC = () => {
                 }}
                 transition={{ 
                   duration: 0.6,
-                  backgroundColor: { duration: 1, ease: 'easeOut' }
+                  backgroundColor: { duration: 0.3, ease: 'easeOut' }
                 }}
               >
                 <Button
