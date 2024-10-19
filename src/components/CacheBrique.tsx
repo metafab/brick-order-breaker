@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { shuffle } from 'lodash';
+import Confetti from 'react-confetti';
 
-const TOTAL_BRICKS = 10;
+const TOTAL_BRICKS = 6; // Reduced from 10 to 6
 const REVEAL_DURATION = 2000; // 2 seconds
 
 const CacheBrique: React.FC = () => {
@@ -14,6 +15,7 @@ const CacheBrique: React.FC = () => {
   const [currentNumber, setCurrentNumber] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [tempRevealedBrick, setTempRevealedBrick] = useState<number | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     resetGame();
@@ -26,6 +28,7 @@ const CacheBrique: React.FC = () => {
     setCurrentNumber(1);
     setIsProcessing(false);
     setTempRevealedBrick(null);
+    setShowConfetti(false);
   };
 
   const handleBrickClick = async (index: number) => {
@@ -48,6 +51,7 @@ const CacheBrique: React.FC = () => {
       setCurrentNumber(currentNumber + 1);
 
       if (currentNumber === TOTAL_BRICKS) {
+        setShowConfetti(true);
         toast.success("Congratulations! You've won the game!");
       } else {
         toast.success(`Correct! Find number ${currentNumber + 1} now.`);
@@ -67,8 +71,9 @@ const CacheBrique: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
+      {showConfetti && <Confetti />}
       <h1 className="text-4xl font-bold text-white mb-8">Cache Brique</h1>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 gap-4"> {/* Changed from grid-cols-5 to grid-cols-3 */}
         {bricks.map((brick, index) => (
           <motion.div
             key={index}
