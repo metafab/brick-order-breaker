@@ -20,11 +20,38 @@ const CacheBrique: React.FC = () => {
   const [errorBrick, setErrorBrick] = useState<number | null>(null);
   const [correctBrick, setCorrectBrick] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [timer, setTimer] = useState(0);
+  const [isGameFinished, setIsGameFinished] = useState(false);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     resetGame();
     audioRef.current = new Audio('/error.mp3');
   }, []);
+
+  useEffect(() => {
+    if (currentNumber === 1 && !isGameFinished) {
+      startTimer();
+    }
+    if (currentNumber > TOTAL_BRICKS) {
+      stopTimer();
+      setIsGameFinished(true);
+    }
+  }, [currentNumber, isGameFinished]);
+
+  const startTimer = () => {
+    if (intervalRef.current !== null) return;
+    intervalRef.current = window.setInterval(() => {
+      setTimer((prevTimer) => prevTimer + 1);
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
 
   const resetGame = () => {
     setBricks(shuffle([...Array(TOTAL_BRICKS)].map((_, i) => i + 1)));
@@ -36,6 +63,9 @@ const CacheBrique: React.FC = () => {
     setShowConfetti(false);
     setErrorBrick(null);
     setCorrectBrick(null);
+    setTimer(0);
+    setIsGameFinished(false);
+    stopTimer();
   };
 
   const handleBrickClick = async (index: number) => {
@@ -59,16 +89,18 @@ const CacheBrique: React.FC = () => {
 
       if (currentNumber === TOTAL_BRICKS) {
         setShowConfetti(true);
-        toast.success("Congratulations! You've won the game!");
+        stopTimer();
+        setIsGameFinished(true);
+        toast.success(`Félicitations ! Vous avez terminé le jeu en ${timer} secondes !`);
       } else {
-        toast.success(`Correct! Find number ${currentNumber + 1} now.`);
+        toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
       }
     } else {
       setErrorBrick(index);
       if (audioRef.current) {
         audioRef.current.play();
       }
-      toast.error("Oops! Wrong brick. Try again.");
+      toast.error("Oups ! Mauvaise brique. Essayez encore.");
       await new Promise(resolve => setTimeout(resolve, ERROR_DURATION));
       setErrorBrick(null);
     }
@@ -86,7 +118,10 @@ const CacheBrique: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       {showConfetti && <Confetti />}
-      <h1 className="text-4xl font-bold text-white mb-8">Cache Brique</h1>
+      <h1 className="text-4xl font-bold text-white mb-4">Cache Brique</h1>
+      <div className="text-6xl font-bold text-white mb-8">
+        {isGameFinished ? `Temps: ${timer}s` : `Temps: ${timer}s`}
+      </div>
       <div className="grid grid-cols-3 gap-4">
         {bricks.map((brick, index) => (
           <motion.div
@@ -129,7 +164,7 @@ const CacheBrique: React.FC = () => {
         ))}
       </div>
       <Button className="mt-8" onClick={resetGame}>
-        Reset Game
+        Recommencer
       </Button>
     </div>
   );
