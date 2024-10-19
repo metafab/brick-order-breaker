@@ -87,7 +87,7 @@ const CacheBrique: React.FC = () => {
                   onClick={() => handleBrickClick(index)}
                   disabled={isProcessing || revealedBricks[index]}
                 >
-                  ?
+                  ?{brick} {/* Display both ? and the brick number */}
                 </Button>
                 <div
                   className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
