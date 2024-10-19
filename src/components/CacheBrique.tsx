@@ -13,6 +13,7 @@ const CacheBrique: React.FC = () => {
   const [flippedBricks, setFlippedBricks] = useState<boolean[]>([]);
   const [currentNumber, setCurrentNumber] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [tempRevealedBrick, setTempRevealedBrick] = useState<number | null>(null);
 
   useEffect(() => {
     resetGame();
@@ -24,6 +25,7 @@ const CacheBrique: React.FC = () => {
     setFlippedBricks(new Array(TOTAL_BRICKS).fill(false));
     setCurrentNumber(1);
     setIsProcessing(false);
+    setTempRevealedBrick(null);
   };
 
   const handleBrickClick = async (index: number) => {
@@ -35,6 +37,7 @@ const CacheBrique: React.FC = () => {
       newFlipped[index] = true;
       return newFlipped;
     });
+    setTempRevealedBrick(index);
 
     await new Promise(resolve => setTimeout(resolve, REVEAL_DURATION));
 
@@ -58,6 +61,7 @@ const CacheBrique: React.FC = () => {
       newFlipped[index] = false;
       return newFlipped;
     });
+    setTempRevealedBrick(null);
     setIsProcessing(false);
   };
 
@@ -86,7 +90,7 @@ const CacheBrique: React.FC = () => {
                   onClick={() => handleBrickClick(index)}
                   disabled={isProcessing || revealedBricks[index]}
                 >
-                  {revealedBricks[index] ? brick : '?'}
+                  {revealedBricks[index] || tempRevealedBrick === index ? brick : '?'}
                 </Button>
                 <div
                   className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
