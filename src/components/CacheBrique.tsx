@@ -51,7 +51,6 @@ const CacheBrique: React.FC = () => {
       }
     } else {
       toast.error("Oops! Wrong brick. Try again.");
-      // We're not resetting the game here anymore
     }
 
     setFlippedBricks(prev => {
@@ -87,7 +86,7 @@ const CacheBrique: React.FC = () => {
                   onClick={() => handleBrickClick(index)}
                   disabled={isProcessing || revealedBricks[index]}
                 >
-                  ?{brick} {/* Display both ? and the brick number */}
+                  {/* Front side: Empty */}
                 </Button>
                 <div
                   className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
