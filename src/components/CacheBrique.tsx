@@ -86,7 +86,7 @@ const CacheBrique: React.FC = () => {
                   onClick={() => handleBrickClick(index)}
                   disabled={isProcessing || revealedBricks[index]}
                 >
-                  {/* Front side: Empty */}
+                  {revealedBricks[index] ? brick : '?'}
                 </Button>
                 <div
                   className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
