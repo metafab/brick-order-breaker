@@ -18,6 +18,7 @@ const CacheBrique: React.FC = () => {
   const [tempRevealedBrick, setTempRevealedBrick] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [errorBrick, setErrorBrick] = useState<number | null>(null);
+  const [correctBrick, setCorrectBrick] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ const CacheBrique: React.FC = () => {
     setTempRevealedBrick(null);
     setShowConfetti(false);
     setErrorBrick(null);
+    setCorrectBrick(null);
   };
 
   const handleBrickClick = async (index: number) => {
@@ -48,6 +50,7 @@ const CacheBrique: React.FC = () => {
     setTempRevealedBrick(index);
 
     if (bricks[index] === currentNumber) {
+      setCorrectBrick(index);
       await new Promise(resolve => setTimeout(resolve, REVEAL_DURATION));
       const newRevealedBricks = [...revealedBricks];
       newRevealedBricks[index] = true;
@@ -77,6 +80,7 @@ const CacheBrique: React.FC = () => {
     });
     setTempRevealedBrick(null);
     setIsProcessing(false);
+    setCorrectBrick(null);
   };
 
   return (
@@ -97,7 +101,7 @@ const CacheBrique: React.FC = () => {
                 initial={false}
                 animate={{ 
                   rotateY: flippedBricks[index] ? 180 : 0,
-                  backgroundColor: errorBrick === index ? '#ef4444' : 'transparent'
+                  backgroundColor: errorBrick === index ? '#ef4444' : correctBrick === index ? '#22c55e' : 'transparent'
                 }}
                 transition={{ 
                   duration: 0.6,
