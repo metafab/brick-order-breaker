@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
 import { shuffle } from 'lodash';
 import Confetti from 'react-confetti';
 
-const TOTAL_BRICKS = 6; // Reduced from 10 to 6
+const TOTAL_BRICKS = 6;
 const REVEAL_DURATION = 2000; // 2 seconds
+const ERROR_DURATION = 1000; // 1 second
 
 const CacheBrique: React.FC = () => {
   const [bricks, setBricks] = useState<number[]>([]);
@@ -16,9 +17,12 @@ const CacheBrique: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [tempRevealedBrick, setTempRevealedBrick] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [errorBrick, setErrorBrick] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     resetGame();
+    audioRef.current = new Audio('/error.mp3');
   }, []);
 
   const resetGame = () => {
@@ -29,6 +33,7 @@ const CacheBrique: React.FC = () => {
     setIsProcessing(false);
     setTempRevealedBrick(null);
     setShowConfetti(false);
+    setErrorBrick(null);
   };
 
   const handleBrickClick = async (index: number) => {
@@ -57,7 +62,12 @@ const CacheBrique: React.FC = () => {
         toast.success(`Correct! Find number ${currentNumber + 1} now.`);
       }
     } else {
+      setErrorBrick(index);
+      if (audioRef.current) {
+        audioRef.current.play();
+      }
       toast.error("Oops! Wrong brick. Try again.");
+      setTimeout(() => setErrorBrick(null), ERROR_DURATION);
     }
 
     setFlippedBricks(prev => {
@@ -73,7 +83,7 @@ const CacheBrique: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       {showConfetti && <Confetti />}
       <h1 className="text-4xl font-bold text-white mb-8">Cache Brique</h1>
-      <div className="grid grid-cols-3 gap-4"> {/* Changed from grid-cols-5 to grid-cols-3 */}
+      <div className="grid grid-cols-3 gap-4">
         {bricks.map((brick, index) => (
           <motion.div
             key={index}
@@ -85,8 +95,14 @@ const CacheBrique: React.FC = () => {
               <motion.div
                 className="w-20 h-20 relative"
                 initial={false}
-                animate={{ rotateY: flippedBricks[index] ? 180 : 0 }}
-                transition={{ duration: 0.6 }}
+                animate={{ 
+                  rotateY: flippedBricks[index] ? 180 : 0,
+                  backgroundColor: errorBrick === index ? '#ef4444' : 'transparent'
+                }}
+                transition={{ 
+                  duration: 0.6,
+                  backgroundColor: { duration: 1, ease: 'easeOut' }
+                }}
               >
                 <Button
                   className={`w-full h-full text-2xl font-bold absolute backface-hidden ${
