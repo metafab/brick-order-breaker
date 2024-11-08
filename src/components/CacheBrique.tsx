@@ -6,15 +6,14 @@ import { shuffle } from 'lodash';
 import Confetti from 'react-confetti';
 
 const TOTAL_BRICKS = 6;
-const REVEAL_DURATION = 2000; // 2 seconds
-const ERROR_DURATION = 1000; // 1 second
+const REVEAL_DURATION = 2000;
+const ERROR_DURATION = 1000;
 
 const CacheBrique: React.FC = () => {
   const [bricks, setBricks] = useState<number[]>([]);
   const [revealedBricks, setRevealedBricks] = useState<boolean[]>([]);
   const [flippedBricks, setFlippedBricks] = useState<boolean[]>([]);
   const [currentNumber, setCurrentNumber] = useState(1);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [tempRevealedBrick, setTempRevealedBrick] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [errorBrick, setErrorBrick] = useState<number | null>(null);
@@ -56,7 +55,6 @@ const CacheBrique: React.FC = () => {
     setRevealedBricks(new Array(TOTAL_BRICKS).fill(false));
     setFlippedBricks(new Array(TOTAL_BRICKS).fill(false));
     setCurrentNumber(1);
-    setIsProcessing(false);
     setTempRevealedBrick(null);
     setShowConfetti(false);
     setErrorBrick(null);
@@ -67,9 +65,8 @@ const CacheBrique: React.FC = () => {
   };
 
   const handleBrickClick = async (index: number) => {
-    if (isProcessing || revealedBricks[index]) return;
+    if (revealedBricks[index]) return;
 
-    setIsProcessing(true);
     setFlippedBricks(prev => {
       const newFlipped = [...prev];
       newFlipped[index] = true;
@@ -79,35 +76,42 @@ const CacheBrique: React.FC = () => {
 
     if (bricks[index] === currentNumber) {
       setCorrectBrick(index);
-      await new Promise(resolve => setTimeout(resolve, REVEAL_DURATION));
-      const newRevealedBricks = [...revealedBricks];
-      newRevealedBricks[index] = true;
-      setRevealedBricks(newRevealedBricks);
-      setCurrentNumber(currentNumber + 1);
+      setTimeout(() => {
+        const newRevealedBricks = [...revealedBricks];
+        newRevealedBricks[index] = true;
+        setRevealedBricks(newRevealedBricks);
+        setCurrentNumber(currentNumber + 1);
 
-      if (currentNumber === TOTAL_BRICKS) {
-        setShowConfetti(true);
-        stopTimer();
-        setIsGameFinished(true);
-        toast.success(`Félicitations ! Vous avez terminé le jeu en ${timer} secondes !`);
-      } else {
-        toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
-      }
+        if (currentNumber === TOTAL_BRICKS) {
+          setShowConfetti(true);
+          stopTimer();
+          setIsGameFinished(true);
+          toast.success(`Félicitations ! Vous avez terminé le jeu en ${timer} secondes !`);
+        } else {
+          toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
+        }
+        
+        setFlippedBricks(prev => {
+          const newFlipped = [...prev];
+          newFlipped[index] = false;
+          return newFlipped;
+        });
+        setTempRevealedBrick(null);
+        setCorrectBrick(null);
+      }, REVEAL_DURATION);
     } else {
       setErrorBrick(index);
       toast.error("Oups ! Mauvaise brique. Essayez encore.");
-      await new Promise(resolve => setTimeout(resolve, ERROR_DURATION));
-      setErrorBrick(null);
+      setTimeout(() => {
+        setErrorBrick(null);
+        setFlippedBricks(prev => {
+          const newFlipped = [...prev];
+          newFlipped[index] = false;
+          return newFlipped;
+        });
+        setTempRevealedBrick(null);
+      }, ERROR_DURATION);
     }
-
-    setFlippedBricks(prev => {
-      const newFlipped = [...prev];
-      newFlipped[index] = false;
-      return newFlipped;
-    });
-    setTempRevealedBrick(null);
-    setIsProcessing(false);
-    setCorrectBrick(null);
   };
 
   return (
@@ -143,7 +147,7 @@ const CacheBrique: React.FC = () => {
                     revealedBricks[index] ? 'bg-green-500' : 'bg-gray-700'
                   }`}
                   onClick={() => handleBrickClick(index)}
-                  disabled={isProcessing || revealedBricks[index]}
+                  disabled={revealedBricks[index]}
                 >
                   {revealedBricks[index] || tempRevealedBrick === index ? brick : '?'}
                 </Button>
