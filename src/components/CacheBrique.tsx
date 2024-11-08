@@ -19,14 +19,12 @@ const CacheBrique: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [errorBrick, setErrorBrick] = useState<number | null>(null);
   const [correctBrick, setCorrectBrick] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [timer, setTimer] = useState(0);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     resetGame();
-    audioRef.current = new Audio('/error.mp3');
   }, []);
 
   useEffect(() => {
@@ -97,9 +95,6 @@ const CacheBrique: React.FC = () => {
       }
     } else {
       setErrorBrick(index);
-      if (audioRef.current) {
-        audioRef.current.play();
-      }
       toast.error("Oups ! Mauvaise brique. Essayez encore.");
       await new Promise(resolve => setTimeout(resolve, ERROR_DURATION));
       setErrorBrick(null);
