@@ -62,6 +62,7 @@ const CacheBrique: React.FC = () => {
     setTimer(0);
     setIsGameFinished(false);
     stopTimer();
+    startTimer(); // Ajout de cette ligne pour redémarrer le minuteur
   };
 
   const handleBrickClick = (index: number) => {
