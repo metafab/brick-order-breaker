@@ -175,13 +175,13 @@ const CacheBrique: React.FC = () => {
       </div>
       <div className="flex gap-4 mt-8">
         <Button onClick={resetGame}>
-          Recommencer
+          🔄 Recommencer
         </Button>
         <Button 
           onClick={() => navigate('/')}
           variant="secondary"
         >
-          {isGameFinished ? "Continuer" : "Abandonner"}
+          {isGameFinished ? "Continuer" : "❌ Abandonner"}
         </Button>
       </div>
     </div>
