@@ -64,7 +64,7 @@ const CacheBrique: React.FC = () => {
     stopTimer();
   };
 
-  const handleBrickClick = async (index: number) => {
+  const handleBrickClick = (index: number) => {
     if (revealedBricks[index]) return;
 
     setFlippedBricks(prev => {
@@ -76,21 +76,23 @@ const CacheBrique: React.FC = () => {
 
     if (bricks[index] === currentNumber) {
       setCorrectBrick(index);
-      setTimeout(() => {
-        const newRevealedBricks = [...revealedBricks];
-        newRevealedBricks[index] = true;
-        setRevealedBricks(newRevealedBricks);
-        setCurrentNumber(currentNumber + 1);
+      // Marquer immédiatement la brique comme trouvée
+      const newRevealedBricks = [...revealedBricks];
+      newRevealedBricks[index] = true;
+      setRevealedBricks(newRevealedBricks);
+      setCurrentNumber(currentNumber + 1);
 
-        if (currentNumber === TOTAL_BRICKS) {
-          setShowConfetti(true);
-          stopTimer();
-          setIsGameFinished(true);
-          toast.success(`Félicitations ! Vous avez terminé le jeu en ${timer} secondes !`);
-        } else {
-          toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
-        }
-        
+      if (currentNumber === TOTAL_BRICKS) {
+        setShowConfetti(true);
+        stopTimer();
+        setIsGameFinished(true);
+        toast.success(`Félicitations ! Vous avez terminé le jeu en ${timer} secondes !`);
+      } else {
+        toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
+      }
+
+      // Gérer l'animation de retour
+      setTimeout(() => {
         setFlippedBricks(prev => {
           const newFlipped = [...prev];
           newFlipped[index] = false;
