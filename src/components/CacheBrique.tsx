@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { motion, AnimatePresence } from "framer-motion"
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import { shuffle } from 'lodash';
 import Confetti from 'react-confetti';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const TOTAL_BRICKS = 6;
 const REVEAL_DURATION = 2000;
 const ERROR_DURATION = 1000;
 
 const CacheBrique: React.FC = () => {
+  const navigate = useNavigate();
+  const { levelId } = useParams();
   const [bricks, setBricks] = useState<number[]>([]);
   const [revealedBricks, setRevealedBricks] = useState<boolean[]>([]);
   const [flippedBricks, setFlippedBricks] = useState<boolean[]>([]);
@@ -33,8 +36,13 @@ const CacheBrique: React.FC = () => {
     if (currentNumber > TOTAL_BRICKS) {
       stopTimer();
       setIsGameFinished(true);
+      const completedLevels = JSON.parse(localStorage.getItem('completedLevels') || '[]');
+      if (levelId && !completedLevels.includes(Number(levelId))) {
+        completedLevels.push(Number(levelId));
+        localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+      }
     }
-  }, [currentNumber, isGameFinished]);
+  }, [currentNumber, isGameFinished, levelId]);
 
   const startTimer = () => {
     if (intervalRef.current !== null) return;
@@ -62,7 +70,7 @@ const CacheBrique: React.FC = () => {
     setTimer(0);
     setIsGameFinished(false);
     stopTimer();
-    startTimer(); // Ajout de cette ligne pour redémarrer le minuteur
+    startTimer();
   };
 
   const handleBrickClick = (index: number) => {
@@ -165,9 +173,17 @@ const CacheBrique: React.FC = () => {
           </motion.div>
         ))}
       </div>
-      <Button className="mt-8" onClick={resetGame}>
-        Recommencer
-      </Button>
+      <div className="flex gap-4 mt-8">
+        <Button onClick={resetGame}>
+          Recommencer
+        </Button>
+        <Button 
+          onClick={() => navigate('/')}
+          variant="secondary"
+        >
+          {isGameFinished ? "Continuer" : "Abandonner"}
+        </Button>
+      </div>
     </div>
   );
 };
