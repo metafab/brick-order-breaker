@@ -25,6 +25,8 @@ const CacheBrique: React.FC = () => {
   const [isGameFinished, setIsGameFinished] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
+  const isLevel2 = levelId === "2";
+
   useEffect(() => {
     resetGame();
   }, []);
@@ -85,7 +87,6 @@ const CacheBrique: React.FC = () => {
 
     if (bricks[index] === currentNumber) {
       setCorrectBrick(index);
-      // Marquer immédiatement la brique comme trouvée
       const newRevealedBricks = [...revealedBricks];
       newRevealedBricks[index] = true;
       setRevealedBricks(newRevealedBricks);
@@ -100,7 +101,6 @@ const CacheBrique: React.FC = () => {
         toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
       }
 
-      // Gérer l'animation de retour
       setTimeout(() => {
         setFlippedBricks(prev => {
           const newFlipped = [...prev];
@@ -113,6 +113,14 @@ const CacheBrique: React.FC = () => {
     } else {
       setErrorBrick(index);
       toast.error("Oups ! Mauvaise brique. Essayez encore.");
+      
+      if (isLevel2) {
+        // Reset all revealed bricks in level 2
+        setRevealedBricks(new Array(TOTAL_BRICKS).fill(false));
+        setCurrentNumber(1);
+        toast.error("Tout est caché à nouveau ! Recommencez depuis le début.");
+      }
+
       setTimeout(() => {
         setErrorBrick(null);
         setFlippedBricks(prev => {
