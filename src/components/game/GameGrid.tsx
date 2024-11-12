@@ -21,7 +21,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
   onBrickClick,
 }) => {
   return (
-    <div className={`grid ${bricks.length === 10 ? 'grid-cols-4' : 'grid-cols-3'} gap-4`}>
+    <div className={`grid ${bricks.length === 8 ? 'grid-cols-4' : 'grid-cols-3'} gap-4`}>
       {bricks.map((brick, index) => (
         <motion.div
           key={index}

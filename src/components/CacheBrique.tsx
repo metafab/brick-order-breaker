@@ -35,7 +35,7 @@ const CacheBrique: React.FC = () => {
   const isLevel4 = levelId === "4";
   const isLevel5 = levelId === "5";
   const shouldResetOnError = isLevel2 || isLevel3 || isLevel4 || isLevel5;
-  const totalBricks = isLevel4 ? 10 : 6;
+  const totalBricks = isLevel4 ? 8 : 6;
 
   useEffect(() => {
     resetGame();
