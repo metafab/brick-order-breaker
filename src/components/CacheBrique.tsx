@@ -31,6 +31,7 @@ const CacheBrique: React.FC = () => {
 
   const isLevel2 = levelId === "2";
   const isLevel3 = levelId === "3";
+  const shouldResetOnError = isLevel2 || isLevel3;
 
   useEffect(() => {
     resetGame();
@@ -147,7 +148,7 @@ const CacheBrique: React.FC = () => {
       setErrorBrick(index);
       toast.error("Oups ! Mauvaise brique. Essayez encore.");
       
-      if (isLevel2) {
+      if (shouldResetOnError) {
         setRevealedBricks(new Array(TOTAL_BRICKS).fill(false));
         setCurrentNumber(1);
         toast.error("Tout est caché à nouveau ! Recommencez depuis le début.");
