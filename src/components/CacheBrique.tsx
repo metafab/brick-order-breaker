@@ -69,15 +69,17 @@ const CacheBrique: React.FC = () => {
     const completedLevels = JSON.parse(localStorage.getItem('completedLevels') || '[]');
     const levelTimes = JSON.parse(localStorage.getItem('levelTimes') || '{}');
     
-    if (levelId && !completedLevels.includes(Number(levelId))) {
+    // Only save completion if the game wasn't lost
+    if (levelId && !completedLevels.includes(Number(levelId)) && 
+        !((isLevel3 && timeLeft === 0) || (isLevel5 && lives === 0))) {
       completedLevels.push(Number(levelId));
       localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
       
       levelTimes[levelId] = isLevel3 ? LEVEL_3_TIME_LIMIT - timeLeft : timer;
       localStorage.setItem('levelTimes', JSON.stringify(levelTimes));
+      setShowConfetti(true);
+      toast.success(`Félicitations ! ${isLevel3 ? `Vous avez terminé le niveau en ${LEVEL_3_TIME_LIMIT - timeLeft} secondes !` : `Vous avez terminé le jeu en ${timer} secondes !`}`);
     }
-    setShowConfetti(true);
-    toast.success(`Félicitations ! ${isLevel3 ? `Vous avez terminé le niveau en ${LEVEL_3_TIME_LIMIT - timeLeft} secondes !` : `Vous avez terminé le jeu en ${timer} secondes !`}`);
   };
 
   const handleGameOver = (message: string) => {
@@ -221,9 +223,9 @@ const CacheBrique: React.FC = () => {
         <Button 
           onClick={() => navigate('/')}
           variant="secondary"
-          className={isGameFinished ? "bg-green-500 hover:bg-green-600 text-white" : ""}
+          className={isGameFinished && !((isLevel3 && timeLeft === 0) || (isLevel5 && lives === 0)) ? "bg-green-500 hover:bg-green-600 text-white" : ""}
         >
-          {isGameFinished ? "➡️ Continuer" : "❌ Abandonner"}
+          {isGameFinished && !((isLevel3 && timeLeft === 0) || (isLevel5 && lives === 0)) ? "➡️ Continuer" : "❌ Abandonner"}
         </Button>
       </div>
     </div>
