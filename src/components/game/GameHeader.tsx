@@ -22,7 +22,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   return (
     <>
       <h1 className="text-4xl font-bold text-white mb-4">Cache Brique</h1>
-      <div className="text-6xl font-bold text-white mb-4">
+      <div className="text-6xl font-bold text-white mb-4 flex flex-col items-center">
         {isLevel3 ? (
           <>
             <div className="text-2xl mb-2">Temps restant : {timeLeft}s</div>
@@ -39,7 +39,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                 ))}
               </div>
             )}
-            <div className="text-2xl">Temps: {timer}s</div>
+            <div className="text-2xl text-center">Temps: {timer}s</div>
           </>
         )}
       </div>
