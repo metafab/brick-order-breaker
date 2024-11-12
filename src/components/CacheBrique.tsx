@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
-import { shuffle } from 'lodash';
 import Confetti from 'react-confetti';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Progress } from "@/components/ui/progress";
+import { shuffle } from 'lodash';
+import { GameHeader } from './game/GameHeader';
+import { GameGrid } from './game/GameGrid';
 
-const TOTAL_BRICKS = 6;
 const REVEAL_DURATION = 2000;
 const ERROR_DURATION = 1000;
 const LEVEL_3_TIME_LIMIT = 30;
+const LEVEL_5_MAX_LIVES = 10;
 
 const CacheBrique: React.FC = () => {
   const navigate = useNavigate();
@@ -26,12 +26,16 @@ const CacheBrique: React.FC = () => {
   const [timer, setTimer] = useState(0);
   const [timeLeft, setTimeLeft] = useState(LEVEL_3_TIME_LIMIT);
   const [isGameFinished, setIsGameFinished] = useState(false);
+  const [lives, setLives] = useState(LEVEL_5_MAX_LIVES);
   const intervalRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
 
   const isLevel2 = levelId === "2";
   const isLevel3 = levelId === "3";
-  const shouldResetOnError = isLevel2 || isLevel3;
+  const isLevel4 = levelId === "4";
+  const isLevel5 = levelId === "5";
+  const shouldResetOnError = isLevel2 || isLevel3 || isLevel4 || isLevel5;
+  const totalBricks = isLevel4 ? 10 : 6;
 
   useEffect(() => {
     resetGame();
@@ -45,33 +49,41 @@ const CacheBrique: React.FC = () => {
     if (currentNumber === 1 && !isGameFinished) {
       startTimer();
     }
-    if (currentNumber > TOTAL_BRICKS) {
-      stopTimer();
-      setIsGameFinished(true);
-      const completedLevels = JSON.parse(localStorage.getItem('completedLevels') || '[]');
-      const levelTimes = JSON.parse(localStorage.getItem('levelTimes') || '{}');
-      
-      if (levelId && !completedLevels.includes(Number(levelId))) {
-        completedLevels.push(Number(levelId));
-        localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
-        
-        // Store the completion time
-        levelTimes[levelId] = isLevel3 ? LEVEL_3_TIME_LIMIT - timeLeft : timer;
-        localStorage.setItem('levelTimes', JSON.stringify(levelTimes));
-      }
+    if (currentNumber > totalBricks) {
+      handleGameComplete();
     }
   }, [currentNumber, isGameFinished, levelId, timer, timeLeft, isLevel3]);
 
   useEffect(() => {
     if (isLevel3 && timeLeft === 0 && !isGameFinished) {
-      handleGameOver();
+      handleGameOver("Temps écoulé !");
     }
-  }, [timeLeft, isLevel3, isGameFinished]);
+    if (isLevel5 && lives === 0 && !isGameFinished) {
+      handleGameOver("Plus de vies !");
+    }
+  }, [timeLeft, lives, isLevel3, isLevel5, isGameFinished]);
 
-  const handleGameOver = () => {
+  const handleGameComplete = () => {
     stopTimer();
     setIsGameFinished(true);
-    toast.error("Temps écoulé ! Vous avez perdu.");
+    const completedLevels = JSON.parse(localStorage.getItem('completedLevels') || '[]');
+    const levelTimes = JSON.parse(localStorage.getItem('levelTimes') || '{}');
+    
+    if (levelId && !completedLevels.includes(Number(levelId))) {
+      completedLevels.push(Number(levelId));
+      localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+      
+      levelTimes[levelId] = isLevel3 ? LEVEL_3_TIME_LIMIT - timeLeft : timer;
+      localStorage.setItem('levelTimes', JSON.stringify(levelTimes));
+    }
+    setShowConfetti(true);
+    toast.success(`Félicitations ! ${isLevel3 ? `Vous avez terminé le niveau en ${LEVEL_3_TIME_LIMIT - timeLeft} secondes !` : `Vous avez terminé le jeu en ${timer} secondes !`}`);
+  };
+
+  const handleGameOver = (message: string) => {
+    stopTimer();
+    setIsGameFinished(true);
+    toast.error(`Game Over ! ${message}`);
   };
 
   const startTimer = () => {
@@ -100,9 +112,9 @@ const CacheBrique: React.FC = () => {
   };
 
   const resetGame = () => {
-    setBricks(shuffle([...Array(TOTAL_BRICKS)].map((_, i) => i + 1)));
-    setRevealedBricks(new Array(TOTAL_BRICKS).fill(false));
-    setFlippedBricks(new Array(TOTAL_BRICKS).fill(false));
+    setBricks(shuffle([...Array(totalBricks)].map((_, i) => i + 1)));
+    setRevealedBricks(new Array(totalBricks).fill(false));
+    setFlippedBricks(new Array(totalBricks).fill(false));
     setCurrentNumber(1);
     setTempRevealedBrick(null);
     setShowConfetti(false);
@@ -110,6 +122,7 @@ const CacheBrique: React.FC = () => {
     setCorrectBrick(null);
     setTimer(0);
     setTimeLeft(LEVEL_3_TIME_LIMIT);
+    setLives(LEVEL_5_MAX_LIVES);
     setIsGameFinished(false);
     stopTimer();
     startTimer();
@@ -126,107 +139,81 @@ const CacheBrique: React.FC = () => {
     setTempRevealedBrick(index);
 
     if (bricks[index] === currentNumber) {
-      setCorrectBrick(index);
-      const newRevealedBricks = [...revealedBricks];
-      newRevealedBricks[index] = true;
-      setRevealedBricks(newRevealedBricks);
-      setCurrentNumber(currentNumber + 1);
-
-      if (currentNumber === TOTAL_BRICKS) {
-        setShowConfetti(true);
-        stopTimer();
-        setIsGameFinished(true);
-        toast.success(`Félicitations ! ${isLevel3 ? `Vous avez terminé le niveau en ${LEVEL_3_TIME_LIMIT - timeLeft} secondes !` : `Vous avez terminé le jeu en ${timer} secondes !`}`);
-      } else {
-        toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
-      }
-
-      timeoutRef.current = window.setTimeout(() => {
-        setFlippedBricks(prev => {
-          const newFlipped = [...prev];
-          newFlipped[index] = false;
-          return newFlipped;
-        });
-        setTempRevealedBrick(null);
-        setCorrectBrick(null);
-      }, REVEAL_DURATION);
+      handleCorrectBrick(index);
     } else {
-      setErrorBrick(index);
-      toast.error("Oups ! Mauvaise brique. Essayez encore.");
-      
-      if (shouldResetOnError) {
-        setRevealedBricks(new Array(TOTAL_BRICKS).fill(false));
-        setCurrentNumber(1);
-        toast.error("Tout est caché à nouveau ! Recommencez depuis le début.");
-      }
-
-      timeoutRef.current = window.setTimeout(() => {
-        setErrorBrick(null);
-        setFlippedBricks(prev => {
-          const newFlipped = [...prev];
-          newFlipped[index] = false;
-          return newFlipped;
-        });
-        setTempRevealedBrick(null);
-      }, ERROR_DURATION);
+      handleIncorrectBrick(index);
     }
+  };
+
+  const handleCorrectBrick = (index: number) => {
+    setCorrectBrick(index);
+    const newRevealedBricks = [...revealedBricks];
+    newRevealedBricks[index] = true;
+    setRevealedBricks(newRevealedBricks);
+    setCurrentNumber(currentNumber + 1);
+
+    if (currentNumber === totalBricks) {
+      handleGameComplete();
+    } else {
+      toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      resetBrickState(index);
+    }, REVEAL_DURATION);
+  };
+
+  const handleIncorrectBrick = (index: number) => {
+    setErrorBrick(index);
+    toast.error("Oups ! Mauvaise brique. Essayez encore.");
+    
+    if (isLevel5) {
+      setLives(prev => prev - 1);
+    }
+    
+    if (shouldResetOnError) {
+      setRevealedBricks(new Array(totalBricks).fill(false));
+      setCurrentNumber(1);
+      toast.error("Tout est caché à nouveau ! Recommencez depuis le début.");
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      resetBrickState(index);
+    }, ERROR_DURATION);
+  };
+
+  const resetBrickState = (index: number) => {
+    setErrorBrick(null);
+    setCorrectBrick(null);
+    setFlippedBricks(prev => {
+      const newFlipped = [...prev];
+      newFlipped[index] = false;
+      return newFlipped;
+    });
+    setTempRevealedBrick(null);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       {showConfetti && <Confetti />}
-      <h1 className="text-4xl font-bold text-white mb-4">Cache Brique</h1>
-      <div className="text-6xl font-bold text-white mb-4">
-        {isLevel3 ? (
-          <>
-            <div className="text-2xl mb-2">Temps restant : {timeLeft}s</div>
-            <Progress value={(timeLeft / LEVEL_3_TIME_LIMIT) * 100} className="w-64 mb-4" />
-          </>
-        ) : (
-          isGameFinished ? `Temps: ${timer}s` : `Temps: ${timer}s`
-        )}
-      </div>
-      <div className="grid grid-cols-3 gap-4">
-        {bricks.map((brick, index) => (
-          <motion.div
-            key={index}
-            className="perspective-1000"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <AnimatePresence>
-              <motion.div
-                className="w-20 h-20 relative"
-                initial={false}
-                animate={{ 
-                  rotateY: flippedBricks[index] ? 180 : 0,
-                  backgroundColor: errorBrick === index ? '#ef4444' : correctBrick === index ? '#22c55e' : 'transparent'
-                }}
-                transition={{ 
-                  duration: 0.6,
-                  backgroundColor: { duration: 0.3, ease: 'easeOut' }
-                }}
-              >
-                <Button
-                  className={`w-full h-full text-2xl font-bold absolute backface-hidden ${
-                    revealedBricks[index] ? 'bg-green-500' : 'bg-gray-700'
-                  }`}
-                  onClick={() => handleBrickClick(index)}
-                  disabled={revealedBricks[index]}
-                >
-                  {revealedBricks[index] || tempRevealedBrick === index ? brick : '?'}
-                </Button>
-                <div
-                  className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
-                  style={{ transform: 'rotateY(180deg)' }}
-                >
-                  {brick}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
-        ))}
-      </div>
+      <GameHeader 
+        timer={timer}
+        timeLeft={timeLeft}
+        totalTime={LEVEL_3_TIME_LIMIT}
+        lives={lives}
+        maxLives={LEVEL_5_MAX_LIVES}
+        isLevel3={isLevel3}
+        isLevel5={isLevel5}
+      />
+      <GameGrid 
+        bricks={bricks}
+        flippedBricks={flippedBricks}
+        revealedBricks={revealedBricks}
+        tempRevealedBrick={tempRevealedBrick}
+        errorBrick={errorBrick}
+        correctBrick={correctBrick}
+        onBrickClick={handleBrickClick}
+      />
       <div className="flex gap-4 mt-8">
         <Button onClick={resetGame}>
           🔄 Recommencer

@@ -30,7 +30,7 @@ const Home: React.FC = () => {
             <Button
               onClick={() => handleLevelClick(index + 1)}
               className="w-full h-24 text-2xl font-bold relative mb-1"
-              disabled={index > 2} // Only disable levels after level 3
+              disabled={index > 4} // Only disable levels after level 5
             >
               {index + 1}
               {completedLevels.includes(index + 1) && (
