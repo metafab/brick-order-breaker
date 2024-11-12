@@ -20,7 +20,7 @@ const Home: React.FC = () => {
             key={index}
             onClick={() => handleLevelClick(index + 1)}
             className="w-full h-24 text-2xl font-bold relative"
-            disabled={index > 1} // Only disable levels after level 2
+            disabled={index > 2} // Only disable levels after level 3
           >
             {index + 1}
             {completedLevels.includes(index + 1) && (
