@@ -49,12 +49,18 @@ const CacheBrique: React.FC = () => {
       stopTimer();
       setIsGameFinished(true);
       const completedLevels = JSON.parse(localStorage.getItem('completedLevels') || '[]');
+      const levelTimes = JSON.parse(localStorage.getItem('levelTimes') || '{}');
+      
       if (levelId && !completedLevels.includes(Number(levelId))) {
         completedLevels.push(Number(levelId));
         localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
+        
+        // Store the completion time
+        levelTimes[levelId] = isLevel3 ? LEVEL_3_TIME_LIMIT - timeLeft : timer;
+        localStorage.setItem('levelTimes', JSON.stringify(levelTimes));
       }
     }
-  }, [currentNumber, isGameFinished, levelId]);
+  }, [currentNumber, isGameFinished, levelId, timer, timeLeft, isLevel3]);
 
   useEffect(() => {
     if (isLevel3 && timeLeft === 0 && !isGameFinished) {
