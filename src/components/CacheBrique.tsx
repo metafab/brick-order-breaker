@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { shuffle } from 'lodash';
 import Confetti from 'react-confetti';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Progress } from "@/components/ui/progress";
 
 const TOTAL_BRICKS = 6;
 const REVEAL_DURATION = 2000;
 const ERROR_DURATION = 1000;
+const LEVEL_3_TIME_LIMIT = 30;
 
 const CacheBrique: React.FC = () => {
   const navigate = useNavigate();
@@ -22,13 +24,20 @@ const CacheBrique: React.FC = () => {
   const [errorBrick, setErrorBrick] = useState<number | null>(null);
   const [correctBrick, setCorrectBrick] = useState<number | null>(null);
   const [timer, setTimer] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(LEVEL_3_TIME_LIMIT);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const intervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   const isLevel2 = levelId === "2";
+  const isLevel3 = levelId === "3";
 
   useEffect(() => {
     resetGame();
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -46,10 +55,33 @@ const CacheBrique: React.FC = () => {
     }
   }, [currentNumber, isGameFinished, levelId]);
 
+  useEffect(() => {
+    if (isLevel3 && timeLeft === 0 && !isGameFinished) {
+      handleGameOver();
+    }
+  }, [timeLeft, isLevel3, isGameFinished]);
+
+  const handleGameOver = () => {
+    stopTimer();
+    setIsGameFinished(true);
+    toast.error("Temps écoulé ! Vous avez perdu.");
+  };
+
   const startTimer = () => {
     if (intervalRef.current !== null) return;
+    
     intervalRef.current = window.setInterval(() => {
-      setTimer((prevTimer) => prevTimer + 1);
+      if (isLevel3) {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else {
+        setTimer((prevTimer) => prevTimer + 1);
+      }
     }, 1000);
   };
 
@@ -70,6 +102,7 @@ const CacheBrique: React.FC = () => {
     setErrorBrick(null);
     setCorrectBrick(null);
     setTimer(0);
+    setTimeLeft(LEVEL_3_TIME_LIMIT);
     setIsGameFinished(false);
     stopTimer();
     startTimer();
@@ -96,12 +129,12 @@ const CacheBrique: React.FC = () => {
         setShowConfetti(true);
         stopTimer();
         setIsGameFinished(true);
-        toast.success(`Félicitations ! Vous avez terminé le jeu en ${timer} secondes !`);
+        toast.success(`Félicitations ! ${isLevel3 ? `Vous avez terminé le niveau en ${LEVEL_3_TIME_LIMIT - timeLeft} secondes !` : `Vous avez terminé le jeu en ${timer} secondes !`}`);
       } else {
         toast.success(`Correct ! Trouvez maintenant le numéro ${currentNumber + 1}.`);
       }
 
-      setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         setFlippedBricks(prev => {
           const newFlipped = [...prev];
           newFlipped[index] = false;
@@ -115,13 +148,12 @@ const CacheBrique: React.FC = () => {
       toast.error("Oups ! Mauvaise brique. Essayez encore.");
       
       if (isLevel2) {
-        // Reset all revealed bricks in level 2
         setRevealedBricks(new Array(TOTAL_BRICKS).fill(false));
         setCurrentNumber(1);
         toast.error("Tout est caché à nouveau ! Recommencez depuis le début.");
       }
 
-      setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         setErrorBrick(null);
         setFlippedBricks(prev => {
           const newFlipped = [...prev];
@@ -137,8 +169,15 @@ const CacheBrique: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       {showConfetti && <Confetti />}
       <h1 className="text-4xl font-bold text-white mb-4">Cache Brique</h1>
-      <div className="text-6xl font-bold text-white mb-8">
-        {isGameFinished ? `Temps: ${timer}s` : `Temps: ${timer}s`}
+      <div className="text-6xl font-bold text-white mb-4">
+        {isLevel3 ? (
+          <>
+            <div className="text-2xl mb-2">Temps restant : {timeLeft}s</div>
+            <Progress value={(timeLeft / LEVEL_3_TIME_LIMIT) * 100} className="w-64 mb-4" />
+          </>
+        ) : (
+          isGameFinished ? `Temps: ${timer}s` : `Temps: ${timer}s`
+        )}
       </div>
       <div className="grid grid-cols-3 gap-4">
         {bricks.map((brick, index) => (
