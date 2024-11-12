@@ -228,8 +228,9 @@ const CacheBrique: React.FC = () => {
         <Button 
           onClick={() => navigate('/')}
           variant="secondary"
+          className={isGameFinished ? "bg-green-500 hover:bg-green-600 text-white" : ""}
         >
-          {isGameFinished ? "Continuer" : "❌ Abandonner"}
+          {isGameFinished ? "➡️ Continuer" : "❌ Abandonner"}
         </Button>
       </div>
     </div>
