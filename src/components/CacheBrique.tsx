@@ -41,6 +41,8 @@ const CacheBrique: React.FC = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
       <LanguageSwitcher />
       {showConfetti && <Confetti />}
+      <h1 className="text-4xl font-bold text-white mb-2">{t('title')}</h1>
+      <h2 className="text-2xl text-white mb-4">{t('level', { number: levelId })}</h2>
       <GameHeader 
         timer={timer}
         timeLeft={timeLeft}

@@ -10,12 +10,14 @@ i18n
     resources: {
       en: {
         translation: {
-          title: 'Brick Cache',
+          title: 'Brick Clicker',
+          tagline: 'if you like to click on bricks',
           restart: '🔄 Restart',
           quit: '❌ Quit',
           continue: '➡️ Continue',
           timeLeft: 'Time left: {{time}}s',
           time: 'Time: {{time}}s',
+          level: 'Level {{number}}',
           correct: 'Correct! Now find number {{number}}.',
           wrong: 'Oops! Wrong brick. Try again.',
           resetOnError: 'Everything is hidden again! Start over from the beginning.',
@@ -27,12 +29,14 @@ i18n
       },
       fr: {
         translation: {
-          title: 'Cache Brique',
+          title: 'Brick Clicker',
+          tagline: 'si vous aimez cliquer sur des briques',
           restart: '🔄 Recommencer',
           quit: '❌ Abandonner',
           continue: '➡️ Continuer',
           timeLeft: 'Temps restant : {{time}}s',
           time: 'Temps: {{time}}s',
+          level: 'Niveau {{number}}',
           correct: 'Correct ! Trouvez maintenant le numéro {{number}}.',
           wrong: 'Oups ! Mauvaise brique. Essayez encore.',
           resetOnError: 'Tout est caché à nouveau ! Recommencez depuis le début.',
