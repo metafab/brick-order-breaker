@@ -24,7 +24,13 @@ export const GameGrid: React.FC<GameGridProps> = ({
   levelId,
 }) => {
   const isRomanLevel = levelId === "6";
-  const displayNumber = (num: number) => isRomanLevel ? toRomanNumeral(num) : num;
+  const isFoxLevel = levelId === "8";
+  
+  const displayNumber = (num: number) => {
+    if (isRomanLevel) return toRomanNumeral(num);
+    if (isFoxLevel) return "🦊".repeat(num);
+    return num;
+  };
 
   return (
     <div className={`grid ${bricks.length === 8 ? 'grid-cols-4' : 'grid-cols-3'} gap-4`}>
@@ -51,14 +57,14 @@ export const GameGrid: React.FC<GameGridProps> = ({
               <Button
                 className={`w-full h-full text-2xl font-bold absolute backface-hidden ${
                   revealedBricks[index] ? 'bg-green-500' : 'bg-gray-700'
-                }`}
+                } ${isFoxLevel ? 'text-lg' : ''}`}
                 onClick={() => onBrickClick(index)}
                 disabled={revealedBricks[index]}
               >
                 {revealedBricks[index] || tempRevealedBrick === index ? displayNumber(brick) : '?'}
               </Button>
               <div
-                className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
+                className={`w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden ${isFoxLevel ? 'text-lg' : ''}`}
                 style={{ transform: 'rotateY(180deg)' }}
               >
                 {displayNumber(brick)}
