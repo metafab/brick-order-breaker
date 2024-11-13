@@ -93,7 +93,7 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
 
   const resetGame = () => {
     const numbers = isLevel7 ? generateRandomNumbers() : [...Array(totalBricks)].map((_, i) => i + 1);
-    setBricks(shuffle(numbers));
+    setBricks(isLevel7 ? numbers : shuffle(numbers));
     setRevealedBricks(new Array(totalBricks).fill(false));
     setFlippedBricks(new Array(totalBricks).fill(false));
     setCurrentNumber(Math.min(...numbers));
