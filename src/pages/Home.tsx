@@ -25,8 +25,16 @@ const Home: React.FC = () => {
   };
 
   const isLevelAccessible = (level: number) => {
-    if (level === 1) return true;
-    return completedLevels.includes(level - 1);
+    // Levels 1-3 are always accessible
+    if (level <= 3) return true;
+    
+    // For levels 4 and above, check if all previous levels are completed
+    for (let i = 1; i < level; i++) {
+      if (!completedLevels.includes(i)) {
+        return false;
+      }
+    }
+    return true;
   };
 
   return (
