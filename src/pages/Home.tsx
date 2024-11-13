@@ -24,6 +24,11 @@ const Home: React.FC = () => {
     return `${seconds}s`;
   };
 
+  const isLevelAccessible = (level: number) => {
+    if (level === 1) return true;
+    return completedLevels.includes(level - 1);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 p-4">
       <LanguageSwitcher />
@@ -35,7 +40,7 @@ const Home: React.FC = () => {
             <Button
               onClick={() => handleLevelClick(index + 1)}
               className="w-full h-24 text-2xl font-bold relative mb-1"
-              disabled={index > 4}
+              disabled={!isLevelAccessible(index + 1) || index > 5}
             >
               {index + 1}
               {completedLevels.includes(index + 1) && (

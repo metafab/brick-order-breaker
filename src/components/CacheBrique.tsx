@@ -60,6 +60,7 @@ const CacheBrique: React.FC = () => {
         errorBrick={errorBrick}
         correctBrick={correctBrick}
         onBrickClick={handleBrickClick}
+        levelId={levelId}
       />
       <div className="flex gap-4 mt-8">
         <Button onClick={resetGame}>

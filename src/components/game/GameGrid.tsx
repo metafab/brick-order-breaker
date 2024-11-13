@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { toRomanNumeral } from "@/utils/romanNumerals";
 
 interface GameGridProps {
   bricks: number[];
@@ -9,6 +10,7 @@ interface GameGridProps {
   errorBrick: number | null;
   correctBrick: number | null;
   onBrickClick: (index: number) => void;
+  levelId?: string;
 }
 
 export const GameGrid: React.FC<GameGridProps> = ({
@@ -19,7 +21,11 @@ export const GameGrid: React.FC<GameGridProps> = ({
   errorBrick,
   correctBrick,
   onBrickClick,
+  levelId,
 }) => {
+  const isRomanLevel = levelId === "6";
+  const displayNumber = (num: number) => isRomanLevel ? toRomanNumeral(num) : num;
+
   return (
     <div className={`grid ${bricks.length === 8 ? 'grid-cols-4' : 'grid-cols-3'} gap-4`}>
       {bricks.map((brick, index) => (
@@ -49,13 +55,13 @@ export const GameGrid: React.FC<GameGridProps> = ({
                 onClick={() => onBrickClick(index)}
                 disabled={revealedBricks[index]}
               >
-                {revealedBricks[index] || tempRevealedBrick === index ? brick : '?'}
+                {revealedBricks[index] || tempRevealedBrick === index ? displayNumber(brick) : '?'}
               </Button>
               <div
                 className="w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden"
                 style={{ transform: 'rotateY(180deg)' }}
               >
-                {brick}
+                {displayNumber(brick)}
               </div>
             </motion.div>
           </AnimatePresence>
