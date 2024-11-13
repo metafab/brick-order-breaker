@@ -15,6 +15,7 @@ export const useGameState = (totalBricks: number, isLevel7: boolean) => {
   const [lives, setLives] = useState(10);
   const [isGameFinished, setIsGameFinished] = useState(false);
   const [isGameLost, setIsGameLost] = useState(false);
+  const [streak, setStreak] = useState(0);
 
   return {
     bricks, setBricks,
@@ -29,6 +30,7 @@ export const useGameState = (totalBricks: number, isLevel7: boolean) => {
     timeLeft, setTimeLeft,
     lives, setLives,
     isGameFinished, setIsGameFinished,
-    isGameLost, setIsGameLost
+    isGameLost, setIsGameLost,
+    streak, setStreak
   };
 };

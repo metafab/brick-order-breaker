@@ -33,7 +33,8 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     timeLeft, setTimeLeft,
     lives, setLives,
     isGameFinished, setIsGameFinished,
-    isGameLost, setIsGameLost
+    isGameLost, setIsGameLost,
+    streak, setStreak
   } = useGameState(totalBricks, isLevel7);
 
   const intervalRef = useRef<number | null>(null);
@@ -104,6 +105,7 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     setLives(LEVEL_5_MAX_LIVES);
     setIsGameFinished(false);
     setIsGameLost(false);
+    setStreak(0);
     stopTimer();
     startTimer();
   };
@@ -127,6 +129,7 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
 
   const handleCorrectBrick = (index: number) => {
     setCorrectBrick(index);
+    setStreak(prev => prev + 1);
     const newRevealedBricks = [...revealedBricks];
     newRevealedBricks[index] = true;
     setRevealedBricks(newRevealedBricks);
@@ -134,7 +137,11 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     const nextNumber = getNextExpectedNumber(bricks, currentNumber);
     if (nextNumber) {
       setCurrentNumber(nextNumber);
-      toast.success(t('correct', { number: nextNumber }));
+      if (streak >= 2) {
+        toast.success(`🔥 ${streak + 1} Streak!`);
+      } else {
+        toast.success(t('correct', { number: nextNumber }));
+      }
     } else {
       handleGameComplete();
     }
@@ -146,6 +153,7 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
 
   const handleIncorrectBrick = (index: number) => {
     setErrorBrick(index);
+    setStreak(0);
     toast.error(t('wrong'));
     
     if (isLevel5) {
@@ -215,6 +223,7 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     lives,
     isGameFinished,
     isGameLost,
+    streak,
     handleBrickClick,
     resetGame
   };

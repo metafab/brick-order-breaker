@@ -33,6 +33,7 @@ const CacheBrique: React.FC = () => {
     lives,
     isGameFinished,
     isGameLost,
+    streak,
     handleBrickClick,
     resetGame
   } = useGameLogic(levelId, totalBricks);
@@ -61,6 +62,7 @@ const CacheBrique: React.FC = () => {
         correctBrick={correctBrick}
         onBrickClick={handleBrickClick}
         levelId={levelId}
+        streak={streak}
       />
       <div className="flex gap-4 mt-8">
         <Button onClick={resetGame}>
