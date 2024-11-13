@@ -35,19 +35,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
   };
 
   return (
-    <div className="relative">
-      {streak > 2 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-          className="absolute -top-12 left-1/2 transform -translate-x-1/2 text-white font-bold"
-        >
-          <span className="text-xl bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent animate-pulse">
-            🔥 {streak} Streak!
-          </span>
-        </motion.div>
-      )}
+    <div className="flex flex-col items-center gap-4">
       <div className={`grid ${bricks.length === 8 ? 'grid-cols-4' : 'grid-cols-3'} gap-4`}>
         {bricks.map((brick, index) => (
           <motion.div
@@ -93,6 +81,18 @@ export const GameGrid: React.FC<GameGridProps> = ({
           </motion.div>
         ))}
       </div>
+      {streak > 2 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          className="text-white font-bold"
+        >
+          <span className="text-xl bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent animate-pulse">
+            🔥 {streak} Streak!
+          </span>
+        </motion.div>
+      )}
     </div>
   );
 };
