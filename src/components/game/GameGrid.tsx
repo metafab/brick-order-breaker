@@ -28,7 +28,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
   
   const displayNumber = (num: number) => {
     if (isRomanLevel) return toRomanNumeral(num);
-    if (isFoxLevel) return "🦊".repeat(num);
+    if (isFoxLevel) return Array(num).fill("🦊").join(" ");
     return num;
   };
 
