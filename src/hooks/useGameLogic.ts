@@ -17,7 +17,8 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
   const isLevel4 = levelId === "4";
   const isLevel5 = levelId === "5";
   const isLevel7 = levelId === "7";
-  const shouldResetOnError = isLevel2 || isLevel3 || isLevel4 || isLevel5;
+  const isLevel8 = levelId === "8";
+  const shouldResetOnError = isLevel2 || isLevel3 || isLevel4 || isLevel5 || isLevel8;
 
   const {
     bricks, setBricks,
@@ -155,7 +156,7 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
         return;
       }
     }
-    
+
     if (shouldResetOnError) {
       setRevealedBricks(new Array(totalBricks).fill(false));
       setCurrentNumber(Math.min(...bricks));

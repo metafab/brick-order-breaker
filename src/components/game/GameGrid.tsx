@@ -57,17 +57,21 @@ export const GameGrid: React.FC<GameGridProps> = ({
               <Button
                 className={`w-full h-full text-2xl font-bold absolute backface-hidden ${
                   revealedBricks[index] ? 'bg-green-500' : 'bg-gray-700'
-                } ${isFoxLevel ? 'text-lg' : ''}`}
+                } ${isFoxLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
                 onClick={() => onBrickClick(index)}
                 disabled={revealedBricks[index]}
               >
-                {revealedBricks[index] || tempRevealedBrick === index ? displayNumber(brick) : '?'}
+                <div className="flex items-center justify-center flex-wrap">
+                  {revealedBricks[index] || tempRevealedBrick === index ? displayNumber(brick) : '?'}
+                </div>
               </Button>
               <div
-                className={`w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden ${isFoxLevel ? 'text-lg' : ''}`}
+                className={`w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden ${isFoxLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
                 style={{ transform: 'rotateY(180deg)' }}
               >
-                {displayNumber(brick)}
+                <div className="flex items-center justify-center flex-wrap">
+                  {displayNumber(brick)}
+                </div>
               </div>
             </motion.div>
           </AnimatePresence>
