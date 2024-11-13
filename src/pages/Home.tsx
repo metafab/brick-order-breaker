@@ -35,12 +35,12 @@ const Home: React.FC = () => {
       <h1 className="text-4xl font-bold text-white mb-2">{t('title')}</h1>
       <p className="text-xl text-white mb-8 italic">{t('tagline')}</p>
       <div className="grid grid-cols-3 gap-4 max-w-md w-full">
-        {[...Array(9)].map((_, index) => (
+        {[...Array(7)].map((_, index) => (
           <div key={index} className="flex flex-col items-center">
             <Button
               onClick={() => handleLevelClick(index + 1)}
               className="w-full h-24 text-2xl font-bold relative mb-1"
-              disabled={!isLevelAccessible(index + 1) || index > 5}
+              disabled={!isLevelAccessible(index + 1)}
             >
               {index + 1}
               {completedLevels.includes(index + 1) && (

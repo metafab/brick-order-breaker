@@ -30,7 +30,16 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
   const isLevel3 = levelId === "3";
   const isLevel4 = levelId === "4";
   const isLevel5 = levelId === "5";
+  const isLevel7 = levelId === "7";
   const shouldResetOnError = isLevel2 || isLevel3 || isLevel4 || isLevel5;
+
+  const generateRandomNumbers = () => {
+    const numbers = [];
+    for (let i = 0; i < totalBricks; i++) {
+      numbers.push(Math.floor(Math.random() * 100) + 1);
+    }
+    return numbers.sort((a, b) => a - b);
+  };
 
   const handleGameComplete = () => {
     stopTimer();
@@ -83,10 +92,11 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
   };
 
   const resetGame = () => {
-    setBricks(shuffle([...Array(totalBricks)].map((_, i) => i + 1)));
+    const numbers = isLevel7 ? generateRandomNumbers() : [...Array(totalBricks)].map((_, i) => i + 1);
+    setBricks(shuffle(numbers));
     setRevealedBricks(new Array(totalBricks).fill(false));
     setFlippedBricks(new Array(totalBricks).fill(false));
-    setCurrentNumber(1);
+    setCurrentNumber(Math.min(...numbers));
     setTempRevealedBrick(null);
     setShowConfetti(false);
     setErrorBrick(null);
