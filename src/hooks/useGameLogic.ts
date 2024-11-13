@@ -2,35 +2,48 @@ import { useState, useRef, useEffect } from 'react';
 import { shuffle } from 'lodash';
 import { toast } from "sonner";
 import { useTranslation } from 'react-i18next';
+import { useGameTimer } from './useGameTimer';
+import { useGameState } from './useGameState';
 
 const REVEAL_DURATION = 2000;
 const ERROR_DURATION = 1000;
-const LEVEL_3_TIME_LIMIT = 30;
-const LEVEL_5_MAX_LIVES = 10;
 
 export const useGameLogic = (levelId: string | undefined, totalBricks: number) => {
   const { t } = useTranslation();
-  const [bricks, setBricks] = useState<number[]>([]);
-  const [revealedBricks, setRevealedBricks] = useState<boolean[]>([]);
-  const [flippedBricks, setFlippedBricks] = useState<boolean[]>([]);
-  const [currentNumber, setCurrentNumber] = useState(1);
-  const [tempRevealedBrick, setTempRevealedBrick] = useState<number | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [errorBrick, setErrorBrick] = useState<number | null>(null);
-  const [correctBrick, setCorrectBrick] = useState<number | null>(null);
-  const [timer, setTimer] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(LEVEL_3_TIME_LIMIT);
-  const [isGameFinished, setIsGameFinished] = useState(false);
-  const [lives, setLives] = useState(LEVEL_5_MAX_LIVES);
-  const [isGameLost, setIsGameLost] = useState(false);
-  const intervalRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
+  
+  const {
+    timer,
+    timeLeft,
+    startTimer,
+    stopTimer,
+    intervalRef
+  } = useGameTimer(levelId);
 
-  const isLevel2 = levelId === "2";
-  const isLevel3 = levelId === "3";
-  const isLevel4 = levelId === "4";
-  const isLevel5 = levelId === "5";
-  const shouldResetOnError = isLevel2 || isLevel3 || isLevel4 || isLevel5;
+  const {
+    bricks,
+    setBricks,
+    revealedBricks,
+    setRevealedBricks,
+    flippedBricks,
+    setFlippedBricks,
+    currentNumber,
+    setCurrentNumber,
+    tempRevealedBrick,
+    setTempRevealedBrick,
+    showConfetti,
+    setShowConfetti,
+    errorBrick,
+    setErrorBrick,
+    correctBrick,
+    setCorrectBrick,
+    lives,
+    setLives,
+    isGameFinished,
+    setIsGameFinished,
+    isGameLost,
+    setIsGameLost
+  } = useGameState(totalBricks);
 
   const handleGameComplete = () => {
     stopTimer();
@@ -42,10 +55,10 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
       completedLevels.push(Number(levelId));
       localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
       
-      levelTimes[levelId] = isLevel3 ? LEVEL_3_TIME_LIMIT - timeLeft : timer;
+      levelTimes[levelId] = timer;
       localStorage.setItem('levelTimes', JSON.stringify(levelTimes));
       setShowConfetti(true);
-      const message = t('completedIn', { time: isLevel3 ? LEVEL_3_TIME_LIMIT - timeLeft : timer });
+      const message = t('completedIn', { time: timer });
       toast.success(t('congratulations', { message }));
     }
   };
@@ -54,50 +67,45 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     stopTimer();
     setIsGameFinished(true);
     setIsGameLost(true);
-    toast.error(t('gameOverTime'));
-  };
-
-  const startTimer = () => {
-    if (intervalRef.current !== null) return;
-    
-    intervalRef.current = window.setInterval(() => {
-      if (isLevel3) {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      } else {
-        setTimer((prevTimer) => prevTimer + 1);
-      }
-    }, 1000);
-  };
-
-  const stopTimer = () => {
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    toast.error(message);
   };
 
   const resetGame = () => {
-    setBricks(shuffle([...Array(totalBricks)].map((_, i) => i + 1)));
+    const isLevel7 = levelId === "7";
+    let numbers;
+    
+    if (isLevel7) {
+      numbers = Array.from({ length: totalBricks }, () => 
+        Math.floor(Math.random() * 100) + 1
+      ).sort((a, b) => a - b);
+    } else {
+      numbers = [...Array(totalBricks)].map((_, i) => i + 1);
+    }
+    
+    setBricks(shuffle(numbers));
     setRevealedBricks(new Array(totalBricks).fill(false));
     setFlippedBricks(new Array(totalBricks).fill(false));
-    setCurrentNumber(1);
+    setCurrentNumber(isLevel7 ? Math.min(...numbers) : 1);
     setTempRevealedBrick(null);
     setShowConfetti(false);
     setErrorBrick(null);
     setCorrectBrick(null);
-    setTimer(0);
-    setTimeLeft(LEVEL_3_TIME_LIMIT);
-    setLives(LEVEL_5_MAX_LIVES);
+    setLives(10);
     setIsGameFinished(false);
     setIsGameLost(false);
     stopTimer();
     startTimer();
+  };
+
+  const resetBrickState = (index: number) => {
+    setErrorBrick(null);
+    setCorrectBrick(null);
+    setFlippedBricks(prev => {
+      const newFlipped = [...prev];
+      newFlipped[index] = false;
+      return newFlipped;
+    });
+    setTempRevealedBrick(null);
   };
 
   const handleBrickClick = (index: number) => {
@@ -122,12 +130,14 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     const newRevealedBricks = [...revealedBricks];
     newRevealedBricks[index] = true;
     setRevealedBricks(newRevealedBricks);
-    setCurrentNumber(currentNumber + 1);
+    
+    const nextNumber = Math.min(...bricks.filter(num => num > currentNumber));
+    setCurrentNumber(nextNumber);
 
-    if (currentNumber === totalBricks) {
+    if (newRevealedBricks.every(revealed => revealed)) {
       handleGameComplete();
     } else {
-      toast.success(t('correct', { number: currentNumber + 1 }));
+      toast.success(t('correct', { number: nextNumber }));
     }
 
     timeoutRef.current = window.setTimeout(() => {
@@ -139,35 +149,9 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
     setErrorBrick(index);
     toast.error(t('wrong'));
     
-    if (isLevel5) {
-      const newLives = lives - 1;
-      setLives(newLives);
-      if (newLives === 0) {
-        handleGameOver(t('gameOverLives'));
-        return;
-      }
-    }
-    
-    if (shouldResetOnError) {
-      setRevealedBricks(new Array(totalBricks).fill(false));
-      setCurrentNumber(1);
-      toast.error(t('resetOnError'));
-    }
-
     timeoutRef.current = window.setTimeout(() => {
       resetBrickState(index);
     }, ERROR_DURATION);
-  };
-
-  const resetBrickState = (index: number) => {
-    setErrorBrick(null);
-    setCorrectBrick(null);
-    setFlippedBricks(prev => {
-      const newFlipped = [...prev];
-      newFlipped[index] = false;
-      return newFlipped;
-    });
-    setTempRevealedBrick(null);
   };
 
   useEffect(() => {
@@ -177,24 +161,6 @@ export const useGameLogic = (levelId: string | undefined, totalBricks: number) =
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, []);
-
-  useEffect(() => {
-    if (currentNumber === 1 && !isGameFinished) {
-      startTimer();
-    }
-    if (currentNumber > totalBricks) {
-      handleGameComplete();
-    }
-  }, [currentNumber, isGameFinished]);
-
-  useEffect(() => {
-    if (isLevel3 && timeLeft === 0 && !isGameFinished) {
-      handleGameOver(t('gameOverTime'));
-    }
-    if (isLevel5 && lives === 0 && !isGameFinished) {
-      handleGameOver(t('gameOverLives'));
-    }
-  }, [timeLeft, lives, isLevel3, isLevel5, isGameFinished]);
 
   return {
     bricks,
