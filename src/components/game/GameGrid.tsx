@@ -43,7 +43,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
         >
           <AnimatePresence>
             <motion.div
-              className="w-20 h-20 relative"
+              className="w-24 h-24 relative"
               initial={false}
               animate={{ 
                 rotateY: flippedBricks[index] ? 180 : 0,
