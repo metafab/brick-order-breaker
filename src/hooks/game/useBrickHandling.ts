@@ -53,6 +53,7 @@ export const useBrickHandling = (
   const handleBrickClick = (index: number) => {
     const shouldResetOnError = ["2", "3", "4", "5", "8", "9", "10", "11"].includes(levelId || "");
     const clickedValue = getBrickValue(bricks[index]);
+    const expectedValue = getNextExpectedNumber();
 
     setFlippedBricks(prev => {
       const newFlipped = [...prev];
@@ -61,7 +62,7 @@ export const useBrickHandling = (
     });
     setTempRevealedBrick(index);
 
-    if (clickedValue === currentNumber) {
+    if (clickedValue === expectedValue) {
       setCorrectBrick(index);
       setStreak(prev => prev + 1);
       const newRevealedBricks = [...revealedBricks];
@@ -80,7 +81,7 @@ export const useBrickHandling = (
       }, REVEAL_DURATION);
     } else {
       setErrorBrick(index);
-      setStreak(0);
+      setStreak(prev => 0);
       toast.error("Wrong brick!");
       
       if (levelId === "5") {
