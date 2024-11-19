@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toRomanNumeral } from "@/utils/romanNumerals";
+import { evaluateMathExpression, parseTimeToMinutes } from "@/utils/levelUtils";
 
 interface GameGridProps {
-  bricks: number[];
+  bricks: number[] | string[];
   flippedBricks: boolean[];
   revealedBricks: boolean[];
   tempRevealedBrick: number | null;
@@ -27,11 +28,21 @@ export const GameGrid: React.FC<GameGridProps> = ({
 }) => {
   const isRomanLevel = levelId === "6";
   const isFoxLevel = levelId === "8";
+  const isMathLevel = levelId === "9";
+  const isTimeLevel = levelId === "10";
+  const isMixedLevel = levelId === "11";
   
-  const displayNumber = (num: number) => {
+  const displayValue = (value: string | number) => {
+    if (isMathLevel) return value;
+    if (isTimeLevel) return value;
+    if (isMixedLevel && typeof value === 'string') return value;
+    
+    const num = Number(value);
     if (isRomanLevel) return toRomanNumeral(num);
-    if (isFoxLevel) return Array(num).fill("🦊").map((fox, i) => <span key={i} className="mx-0.5">{fox}</span>);
-    return num;
+    if (isFoxLevel) return Array(num).fill("🦊").map((fox, i) => (
+      <span key={i} className="mx-0.5">{fox}</span>
+    ));
+    return value;
   };
 
   return (
@@ -60,20 +71,20 @@ export const GameGrid: React.FC<GameGridProps> = ({
                 <Button
                   className={`w-full h-full text-2xl font-bold absolute backface-hidden ${
                     revealedBricks[index] ? 'bg-green-500' : 'bg-gray-700'
-                  } ${isFoxLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
+                  } ${isFoxLevel || isMixedLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
                   onClick={() => onBrickClick(index)}
                   disabled={revealedBricks[index]}
                 >
                   <div className="flex items-center justify-center flex-wrap">
-                    {revealedBricks[index] || tempRevealedBrick === index ? displayNumber(brick) : '?'}
+                    {revealedBricks[index] || tempRevealedBrick === index ? displayValue(brick) : '?'}
                   </div>
                 </Button>
                 <div
-                  className={`w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden ${isFoxLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
+                  className={`w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden ${isFoxLevel || isMixedLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
                   style={{ transform: 'rotateY(180deg)' }}
                 >
                   <div className="flex items-center justify-center flex-wrap">
-                    {displayNumber(brick)}
+                    {displayValue(brick)}
                   </div>
                 </div>
               </motion.div>
@@ -86,7 +97,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0 }}
-          className="text-white font-bold"
+          className="text-white font-bold mt-4"
         >
           <span className="text-xl bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent animate-pulse">
             🔥 {streak} Streak!

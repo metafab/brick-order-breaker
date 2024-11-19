@@ -12,19 +12,22 @@ Cache Brique is a memory-based number sequencing game where players must click o
 - Incorrect clicks result in penalties depending on the level
 
 ### Level Structure
-The game consists of 8 levels with progressive difficulty:
+The game consists of 11 levels with progressive difficulty:
 
 #### Level 1-3 (Always Accessible)
 - **Level 1**: Basic number sequence with 6 bricks
 - **Level 2**: Numbers reset on wrong click
-- **Level 3**: Time limit of 30 seconds to complete the sequence
+- **Level 3**: Time limit of 30 seconds
 
-#### Level 4-8 (Requires Previous Level Completion)
-- **Level 4**: Increased to 8 bricks instead of 6
+#### Level 4-11 (Requires Previous Level Completion)
+- **Level 4**: Increased to 8 bricks
 - **Level 5**: Lives system (10 lives)
 - **Level 6**: Roman numerals instead of regular numbers
 - **Level 7**: Random numbers (not sequential 1-6/8)
 - **Level 8**: Fox emoji quantities (1-6 🦊)
+- **Level 9**: Simple mathematical expressions (e.g., "2+3", "8-5")
+- **Level 10**: Different clock times (e.g., "3:15", "11:45")
+- **Level 11**: Mix of numbers, roman numerals, and emojis
 
 ## Level Details
 
@@ -80,6 +83,27 @@ The game consists of 8 levels with progressive difficulty:
 - Must be clicked in ascending order of emoji quantity
 - Progress resets on wrong click
 - Requires completion of levels 1-7
+
+### Level 9
+- 6 bricks
+- Simple mathematical expressions (e.g., "2+3", "8-5")
+- Must be clicked in ascending order based on results
+- Progress resets on wrong click
+- Requires completion of levels 1-8
+
+### Level 10
+- 6 bricks
+- Different clock times (e.g., "3:15", "11:45")
+- Must be clicked in chronological order
+- Progress resets on wrong click
+- Requires completion of levels 1-9
+
+### Level 11
+- 6 bricks
+- Mix of numbers, roman numerals, and emojis
+- Must be clicked in ascending order
+- Progress resets on wrong click
+- Requires completion of levels 1-10
 
 ## Progress Tracking
 - Completed levels are saved in localStorage
