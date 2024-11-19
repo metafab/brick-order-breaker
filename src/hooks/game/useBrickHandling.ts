@@ -95,7 +95,8 @@ export const useBrickHandling = (
 
       if (shouldResetOnError) {
         setRevealedBricks(new Array(bricks.length).fill(false));
-        setCurrentNumber(Math.min(...bricks.map(getBrickValue)));
+        const firstNumber = Math.min(...bricks.map(getBrickValue));
+        setCurrentNumber(firstNumber);
       }
 
       timeoutRef.current = window.setTimeout(() => {
