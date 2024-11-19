@@ -68,12 +68,16 @@ export const useBrickHandling = (
       const newRevealedBricks = [...revealedBricks];
       newRevealedBricks[index] = true;
       setRevealedBricks(newRevealedBricks);
-      
-      const nextNumber = getNextExpectedNumber();
-      if (nextNumber) {
-        setCurrentNumber(nextNumber);
-      } else {
+
+      // Check if all bricks are revealed after this correct click
+      const allRevealed = newRevealedBricks.every(brick => brick);
+      if (allRevealed) {
         handleGameComplete();
+      } else {
+        const nextNumber = getNextExpectedNumber();
+        if (nextNumber) {
+          setCurrentNumber(nextNumber);
+        }
       }
 
       timeoutRef.current = window.setTimeout(() => {
@@ -81,7 +85,7 @@ export const useBrickHandling = (
       }, REVEAL_DURATION);
     } else {
       setErrorBrick(index);
-      setStreak(prev => 0);
+      setStreak(0);
       toast.error("Wrong brick!");
       
       if (levelId === "5") {
