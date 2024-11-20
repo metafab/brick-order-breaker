@@ -19,3 +19,26 @@ export function toRomanNumeral(num: number): string {
 
   return result;
 }
+
+export function fromRomanNumeral(roman: string): number {
+  const romanValues: { [key: string]: number } = {
+    'I': 1,
+    'V': 5,
+    'X': 10
+  };
+
+  let result = 0;
+  for (let i = 0; i < roman.length; i++) {
+    const current = romanValues[roman[i]];
+    const next = romanValues[roman[i + 1]];
+
+    if (next && current < next) {
+      result += next - current;
+      i++; // Skip the next character as we've already used it
+    } else {
+      result += current;
+    }
+  }
+
+  return result;
+}
