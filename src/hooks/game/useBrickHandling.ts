@@ -25,9 +25,17 @@ export const useBrickHandling = (
   const timeoutRef = useRef<number | null>(null);
 
   const getBrickValue = (brick: number | string): number => {
-    if (levelId === "9") return evaluateMathExpression(brick.toString());
-    if (levelId === "10") return parseTimeToMinutes(brick.toString());
-    return Number(brick);
+    if (typeof brick === 'string') {
+      // Handle fox emoji counting
+      if (brick.includes('🦊')) {
+        return (brick.match(/🦊/g) || []).length;
+      }
+      // Handle other cases
+      if (levelId === "9") return evaluateMathExpression(brick);
+      if (levelId === "10") return parseTimeToMinutes(brick);
+      return Number(brick);
+    }
+    return brick;
   };
 
   const getNextExpectedNumber = () => {
@@ -85,7 +93,7 @@ export const useBrickHandling = (
       }, REVEAL_DURATION);
     } else {
       setErrorBrick(index);
-      setStreak(0);
+      setStreak(prev => 0);
       toast.error("Wrong brick!");
       
       if (levelId === "5") {
