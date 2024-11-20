@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { toast } from "sonner";
 import { evaluateMathExpression, parseTimeToMinutes } from '@/utils/levelUtils';
+import { fromRomanNumeral } from '@/utils/romanNumerals';
 
 const REVEAL_DURATION = 2000;
 const ERROR_DURATION = 1000;
@@ -29,6 +30,10 @@ export const useBrickHandling = (
       // Handle fox emoji counting
       if (brick.includes('🦊')) {
         return (brick.match(/🦊/g) || []).length;
+      }
+      // Handle Roman numerals (I, V, X, etc.)
+      if (/^[IVXLCDM]+$/i.test(brick)) {
+        return fromRomanNumeral(brick);
       }
       // Handle other cases
       if (levelId === "9") return evaluateMathExpression(brick);
