@@ -37,7 +37,8 @@ export const GameGrid: React.FC<GameGridProps> = ({
     if (isTimeLevel) return value;
     if (isMixedLevel && typeof value === 'string') {
       if (value.includes('🦊')) {
-        return value.split('').map((fox, i) => (
+        const foxes = Array(value.split('🦊').length - 1).fill('🦊');
+        return foxes.map((fox, i) => (
           <span key={i} className="mx-0.5">{fox}</span>
         ));
       }
