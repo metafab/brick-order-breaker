@@ -35,7 +35,14 @@ export const GameGrid: React.FC<GameGridProps> = ({
   const displayValue = (value: string | number) => {
     if (isMathLevel) return value;
     if (isTimeLevel) return value;
-    if (isMixedLevel && typeof value === 'string') return value;
+    if (isMixedLevel && typeof value === 'string') {
+      if (value.includes('🦊')) {
+        return value.split('').map((fox, i) => (
+          <span key={i} className="mx-0.5">{fox}</span>
+        ));
+      }
+      return value;
+    }
     
     const num = Number(value);
     if (isRomanLevel) return toRomanNumeral(num);
