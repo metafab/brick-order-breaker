@@ -54,33 +54,43 @@ export const generateTimes = (count: number): string[] => {
 };
 
 export const generateMixedSymbols = (count: number): Array<{value: number; display: string}> => {
+  if (count !== 6) {
+    throw new Error('Level 11 requires exactly 6 bricks');
+  }
+
+  // Create 2 of each type
   const symbols: Array<{value: number; display: string}> = [];
-  const values = new Set<number>();
   
-  while (symbols.length < count) {
-    const value = Math.floor(Math.random() * 6) + 1;
-    if (!values.has(value)) {
-      const type = Math.floor(Math.random() * 3);
-      let display: string;
-      
-      switch (type) {
-        case 0:
-          display = value.toString();
-          break;
-        case 1:
-          display = toRomanNumeral(value);
-          break;
-        case 2:
-          display = '🦊'.repeat(value);
-          break;
-        default:
-          display = value.toString();
-      }
-      
-      symbols.push({ value, display });
-      values.add(value);
-    }
+  // Generate 2 numbers (1-6)
+  for (let i = 0; i < 2; i++) {
+    let value: number;
+    do {
+      value = Math.floor(Math.random() * 6) + 1;
+    } while (symbols.some(s => s.value === value));
+    
+    symbols.push({ value, display: value.toString() });
   }
   
-  return symbols;
+  // Generate 2 roman numerals (1-6)
+  for (let i = 0; i < 2; i++) {
+    let value: number;
+    do {
+      value = Math.floor(Math.random() * 6) + 1;
+    } while (symbols.some(s => s.value === value));
+    
+    symbols.push({ value, display: toRomanNumeral(value) });
+  }
+  
+  // Generate 2 fox sequences (1-6)
+  for (let i = 0; i < 2; i++) {
+    let value: number;
+    do {
+      value = Math.floor(Math.random() * 6) + 1;
+    } while (symbols.some(s => s.value === value));
+    
+    symbols.push({ value, display: '🦊'.repeat(value) });
+  }
+  
+  // Shuffle the array before returning
+  return symbols.sort(() => Math.random() - 0.5);
 };
