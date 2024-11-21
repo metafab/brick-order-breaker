@@ -90,9 +90,7 @@ export const GameGrid: React.FC<GameGridProps> = ({
                   className={`w-full h-full flex items-center justify-center text-2xl font-bold bg-blue-500 text-white absolute backface-hidden ${isFoxLevel || isMixedLevel ? 'text-lg flex-wrap break-words overflow-hidden' : ''}`}
                   style={{ transform: 'rotateY(180deg)' }}
                 >
-                  <div className="flex items-center justify-center flex-wrap" style={{ transform: 'rotateY(180deg)' }}>
-                    {displayValue(brick)}
-                  </div>
+                  {displayValue(brick)}
                 </div>
               </motion.div>
             </AnimatePresence>
