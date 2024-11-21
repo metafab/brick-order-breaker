@@ -22,7 +22,7 @@ export const generateMathExpressions = (count: number): string[] => {
     const num1 = Math.floor(Math.random() * 9) + 1;
     const num2 = Math.floor(Math.random() * 9) + 1;
     const operator = Math.random() < 0.5 ? '+' : '-';
-    const expression = `${num1}${operator}${num2}`;
+    const expression = `${num1} ${operator} ${num2}`; // Added spaces around operator
     const result = evaluateMathExpression(expression);
     
     if (!results.has(result)) {
@@ -39,9 +39,9 @@ export const generateTimes = (count: number): string[] => {
   const minutes = new Set<number>();
   
   while (times.length < count) {
-    const hours = Math.floor(Math.random() * 12) + 1;
+    const hours = Math.floor(Math.random() * 24); // Changed to 24-hour format
     const mins = Math.floor(Math.random() * 4) * 15;
-    const timeStr = `${hours}:${mins.toString().padStart(2, '0')}`;
+    const timeStr = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`; // Added leading zeros
     const totalMinutes = parseTimeToMinutes(timeStr);
     
     if (!minutes.has(totalMinutes)) {
